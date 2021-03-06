@@ -1,10 +1,14 @@
 #!/bin/bash
-#
-# initialize kubernetes cluster
-# v. 21.02.28 
-#
-# √ tested 
-#
+echo "********************************************"
+echo "*** initialize kubernetes cluster "
+echo "*** (on control plane only)"
+echo "********************************************"
+echo "*** os: ubuntu"
+echo "*** v. 21.03.06 "
+echo "***"
+echo "*** ? tested"
+echo "********************************************"
+
 
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
 sudo kubeadm init --pod-network-cidr 10.1.0.0/16

@@ -1,11 +1,14 @@
 #!/bin/sh
 #
-# install zsh + powerlevel10k + plugins 
-# os: ubuntu
-# v. 21.03.06 
-# 
-# √ tested
-# 
+echo "********************************************"
+echo "*** install zsh + powerlevel10k + plugins "
+echo "********************************************"
+echo "*** os: ubuntu"
+echo "*** v. 21.03.06 "
+echo "***"
+echo "*** √ tested"
+echo "********************************************"
+
 
 # install zsh
 sudo apt-get update -y

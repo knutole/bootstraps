@@ -1,10 +1,13 @@
 #!/bin/bash
-#
-# install kubernetes on ubuntu
-# v. 21.03.01 
-# 
-# NOT tested
-# 
+echo "********************************************"
+echo "*** install kubernetes on ubuntu"
+echo "********************************************"
+echo "*** os: ubuntu"
+echo "*** v. 21.03.06 "
+echo "***"
+echo "*** ? tested"
+echo "********************************************"
+
 
 # Install global dependencies
 sudo apt-get install -y \
