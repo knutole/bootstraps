@@ -1,3 +1,3 @@
-# Boostraps
+# Bootstraps
 
-Bootstrap scripts, Cloudformation templates, etc.
+Bootstrap scripts for Amazon Linux 2 and Ubuntu.
