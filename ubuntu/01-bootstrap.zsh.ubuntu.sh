@@ -1,5 +1,6 @@
 #!/bin/sh
 #
+echo
 echo "********************************************"
 echo "*** install zsh + powerlevel10k + plugins "
 echo "********************************************"
@@ -8,11 +9,11 @@ echo "*** v. 21.03.06 "
 echo "***"
 echo "*** √ tested"
 echo "********************************************"
-
+echo
 
 # install zsh
 sudo apt-get update -y
-sudo apt-get -y install zsh git wget
+sudo apt-get -y install zsh git
 
 # install oh-my-zsh
 curl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh --output ~/install-oh-my-zsh.sh

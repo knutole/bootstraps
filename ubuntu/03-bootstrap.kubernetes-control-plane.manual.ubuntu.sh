@@ -11,7 +11,7 @@ echo "********************************************"
 
 
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
-sudo kubeadm init --pod-network-cidr 10.1.0.0/16
+sudo kubeadm init --pod-network-cidr 10.100.0.0/16
 
 # Set kubectl access:
 mkdir -p $HOME/.kube
@@ -33,10 +33,12 @@ kubectl version
 kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.9.3/install/kubernetes/quick-install.yaml
 
 ## Validate Cilium install
-kubectl -n kube-system get pods --watch
+kubectl -n kube-system get pods
 
-# Check status of Calico components:
-kubectl get pods -n kube-system
+# wait for pod to be ready
+# todo: fill in POD ID
+# while [[ $(kubectl get pods hello-d8d8d7455-j9nzw -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+
 
 # Create test
 kubectl create ns cilium-test
@@ -47,7 +49,13 @@ kubectl get pods -n cilium-test
 # https://docs.cilium.io/en/stable/gettingstarted/k8s-install-default/
 export CILIUM_NAMESPACE=kube-system
 kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.9.3/install/kubernetes/quick-hubble-install.yaml
-kubectl port-forward -n $CILIUM_NAMESPACE svc/hubble-ui --address 0.0.0.0 --address :: 12000:80
+
+
+# wait for pod to be ready
+# todo: fill in POD ID
+# while [[ $(kubectl get pods hello-d8d8d7455-j9nzw -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+
+# kubectl port-forward -n $CILIUM_NAMESPACE svc/hubble-ui --address 0.0.0.0 --address :: 12000:80
 # And then open http://localhost:12000/ to access the UI. (or public IP if ports are open)
 
 

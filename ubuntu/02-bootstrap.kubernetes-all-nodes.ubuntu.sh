@@ -1,4 +1,5 @@
 #!/bin/bash
+echo
 echo "********************************************"
 echo "*** install kubernetes on ubuntu"
 echo "********************************************"
@@ -7,14 +8,15 @@ echo "*** v. 21.03.06 "
 echo "***"
 echo "*** ? tested"
 echo "********************************************"
-
+echo
 
 # Install global dependencies
 sudo apt-get install -y \
     apt-transport-https \
     ca-certificates \
     curl \
-    gnupg
+    gnupg \
+    net-tools 
 
 # Create configuration file for containerd:
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
