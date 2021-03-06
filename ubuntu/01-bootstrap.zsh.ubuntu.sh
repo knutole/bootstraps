@@ -29,10 +29,10 @@ git clone --depth=1 https://github.com/zsh-users/zsh-history-substring-search ${
 git clone --depth=1 https://github.com/johanhaleby/kubetail.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/kubetail
 
 # get & overwrite zsh config
-curl https://raw.githubusercontent.com/knutole/bootstraps/main/bootstrap-scripts/.zshrc.template -H "Cache-Control: no-cache"  -L > ~/.zshrc
+curl https://raw.githubusercontent.com/knutole/bootstraps/main/zsh/.zshrc.template -H "Cache-Control: no-cache"  -L > ~/.zshrc
 
 # get powerlevel10k config
-curl https://raw.githubusercontent.com/knutole/bootstraps/main/bootstrap-scripts/.p10k.zsh.template -H "Cache-Control: no-cache"  -L > ~/.p10k.zsh
+curl https://raw.githubusercontent.com/knutole/bootstraps/main/zsh/.p10k.zsh.template -H "Cache-Control: no-cache"  -L > ~/.p10k.zsh
 
 # set zsh as default shell
 sudo chsh -s /bin/zsh ubuntu

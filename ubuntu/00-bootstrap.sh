@@ -2,7 +2,6 @@
 
 echo 
 echo
-echo
 echo "********************************************"
 echo "*** Bootstrap script"
 echo "********************************************"
@@ -10,7 +9,6 @@ echo "*** NODE: $NODE"
 echo "*** HOME: $HOME"
 echo "*** K8_NODE_TYPE: $K8_NODE_TYPE"
 echo "********************************************"
-echo
 echo
 
 # run scripts in sorted order
