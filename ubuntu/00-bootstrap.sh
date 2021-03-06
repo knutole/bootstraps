@@ -13,7 +13,7 @@ sudo apt-get update && sudo apt-get install -y curl unzip
 mkdir ~/.bootstraps && cd ~/.bootstraps
 curl -L https://github.com/knutole/bootstraps/archive/main.zip -o bootstraps.zip
 unzip bootstraps.zip
-cd bootstraps-main/bootstrap-scripts/ubuntu
+cd ubuntu
 
 # run scripts in sorted order
 for CURR_FILE in $(ls -I 00* -1v *.ubuntu.*) # ignore 00-boostrap, sort, show only ubuntu 
