@@ -1,0 +1,451 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create K8 Control Plane and 3 Worker nodes
+Parameters:
+  VpcId:
+    Type: String
+  SubnetId:
+    Type: String
+  InstanceNamePrefix:
+    Type: String
+  ControlInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.small
+    AllowedValues:
+    - t3.small
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    ConstraintDescription: must be a valid EC2 instance type.
+  WorkerInstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t3.small
+    AllowedValues:
+    - t3.small
+    - t3.medium
+    - t3.large
+    - t3.xlarge
+    ConstraintDescription: must be a valid EC2 instance type.
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instances
+    Type: AWS::EC2::KeyPair::KeyName
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+  SSHLocation:
+    Type: String
+  SSHLocationOldTown:
+    Type: String
+  LatestAmiId:
+    Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  BootstrapScriptUrl:
+    Type: String
+  BootstrapZshScriptUrl:
+    Type: String
+  BootstrapK8ScriptUrl:
+    Type: String
+  BootstrapK8ControlPlaneInitializeClusterScriptUrl:
+    Type: String
+  EipAllocationId:
+    Type: String
+  EBSVolumeSize:
+    Type: String
+
+Mappings:
+  AMI2RegionMap:
+    eu-west-1:
+      '64': ami-1c4a046f
+    eu-central-1:
+      '64': ami-b03ffedf
+
+Resources:
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+      - Ref: InstanceIAMRole
+
+  InstanceIAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: logs
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - logs:DescribeLogStreams
+            Resource:
+            - arn:aws:logs:*:*:*
+
+  K8ControlInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref ControlInstanceType
+      SecurityGroupIds: 
+        - !Ref SSHSecurityGroup
+        - !Ref K8ControlSecurityGroup
+        - !Ref K8ClusterSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref SubnetId
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref EBSVolumeSize
+            DeleteOnTermination: 'false'
+            Encrypted: 'true'
+      Tags:
+        - 
+          Key: Name 
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'control-plane'
+      UserData:
+        Fn::Base64: !Sub 
+          - |
+            #!/bin/bash -xe
+            export K8_NODE_TYPE=control
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output ~/bootstrap.sh
+            sudo -u ec2-user -i -- bash ~/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          - 
+
+  K8WorkerInstance1:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref WorkerInstanceType
+      SecurityGroupIds:
+        - !Ref SSHSecurityGroup
+        - !Ref K8WorkerSecurityGroup
+        - !Ref K8ClusterSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref SubnetId
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref EBSVolumeSize
+            DeleteOnTermination: 'false'
+            Encrypted: 'true'
+      Tags:
+        - 
+          Key: Name 
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'worker-1'
+      UserData:
+        Fn::Base64: !Sub 
+          - |
+            #!/bin/bash -xe
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - |
+          #   #!/bin/bash -xe
+          #   sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+      
+  K8WorkerInstance2:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref WorkerInstanceType
+      SecurityGroupIds:
+        - !Ref SSHSecurityGroup
+        - !Ref K8WorkerSecurityGroup
+        - !Ref K8ClusterSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref SubnetId
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref EBSVolumeSize
+            DeleteOnTermination: 'false'
+            Encrypted: 'true'
+      Tags:
+        - 
+          Key: Name 
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'worker-2'
+      UserData:
+        Fn::Base64: !Sub 
+          - |
+            #!/bin/bash -xe
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - |
+          #   #!/bin/bash -xe
+          #   sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+
+  K8WorkerInstance3:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref WorkerInstanceType
+      SecurityGroupIds:
+        - !Ref SSHSecurityGroup
+        - !Ref K8WorkerSecurityGroup
+        - !Ref K8ClusterSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !Ref LatestAmiId
+      SubnetId: !Ref SubnetId
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeType: gp2
+            VolumeSize: !Ref EBSVolumeSize
+            DeleteOnTermination: 'false'
+            Encrypted: 'true'
+      Tags:
+        - 
+          Key: Name 
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'worker-3'
+      UserData:
+        Fn::Base64: !Sub 
+          - |
+            #!/bin/bash -xe
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - |
+          #   #!/bin/bash -xe
+          #   sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+
+  # Associate existing EIP with Control Plane instance
+  K8EipControlInstance:
+    Type: AWS::EC2::EIPAssociation
+    Properties: 
+      AllocationId: !Ref EipAllocationId
+      InstanceId: !Ref K8ControlInstance
+
+  # SSH port open for VPN connection only
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: !Ref SSHLocation # only allow from VPN
+      VpcId: !Ref VpcId
+
+  
+  # Ports needed for Calico
+  # https://docs.projectcalico.org/getting-started/kubernetes/requirements
+  K8ClusterSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable necessary ports for K8 Control Plane
+      GroupName: K8ClusterSecurityGroup
+      VpcId: !Ref VpcId
+  
+  K8CalicoNetworkingBGP:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 179
+      ToPort: 179
+      SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8CalicoNetworkingVXLAN:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+      SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8CalicoNetworkingTypha:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 5473
+      ToPort: 5473
+      SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8Http:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8Https:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8AllowAllInternalTraffic:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8AllowAllFromVPN:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      CidrIp: !Ref SSHLocation
+
+  K8AllowAllFromOldTown:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref K8ClusterSecurityGroup
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      CidrIp: !Ref SSHLocationOldTown
+
+  # Ports needed on K8 Control Plane
+  # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports
+  # control security groups
+  K8ControlSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable necessary ports for K8 Control Plane
+      GroupName: K8ControlSecurityGroup
+      VpcId: !Ref VpcId
+  
+  K8ControlSecurityGroupIngressK8ApiServer:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8ControlSecurityGroup
+        IpProtocol: tcp
+        FromPort: 6443
+        ToPort: 6443
+        # CidrIp: !Ref SSHLocation # only allow from VPN
+        CidrIp: 0.0.0.0/0
+        # SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+        
+  K8ControlSecurityGroupIngressEtcdServer:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8ControlSecurityGroup
+        IpProtocol: tcp
+        FromPort: 2379
+        ToPort: 2380
+        SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+  
+  K8ControlSecurityGroupIngressKubelet:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8ControlSecurityGroup
+        IpProtocol: tcp
+        FromPort: 10250
+        ToPort: 10250
+        SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8ControlSecurityGroupIngressKubeScheduler:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8ControlSecurityGroup
+        IpProtocol: tcp
+        FromPort: 10251
+        ToPort: 10251
+        SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8ControlSecurityGroupIngressKubeControllerManager:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8ControlSecurityGroup
+        IpProtocol: tcp
+        FromPort: 10252
+        ToPort: 10252
+        SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  # Ports needed on K8 Workers
+  # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports
+  # workers security groups
+  K8WorkerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable necessary ports for K8 Control
+      GroupName: K8WorkerSecurityGroup
+      VpcId: !Ref VpcId
+      
+  K8WorkerSecurityGroupIngressKubelet:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8WorkerSecurityGroup
+        IpProtocol: tcp
+        FromPort: 10250
+        ToPort: 10250
+        SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+
+  K8WorkerSecurityGroupIngressNodePortServices:
+      Type: AWS::EC2::SecurityGroupIngress
+      Properties:
+        GroupId: !Ref K8WorkerSecurityGroup
+        IpProtocol: tcp
+        FromPort: 30000
+        ToPort: 32767
+        SourceSecurityGroupId: !Ref K8ClusterSecurityGroup
+      
+Outputs:
+  K8ControlPublicIP:
+    Description: Public IP of Kubernetes Control Plane
+    Value: !GetAtt K8ControlInstance.PublicIp
+  K8Worker1PublicIP:
+    Description: Public IP of Kubernetes Control Plane
+    Value: !GetAtt K8WorkerInstance1.PublicIp
+  K8Worker2PublicIP:
+    Description: Public IP of Kubernetes Control Plane
+    Value: !GetAtt K8WorkerInstance2.PublicIp
+ 

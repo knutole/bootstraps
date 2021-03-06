@@ -8,11 +8,11 @@ echo "HOME: $HOME"
 # sudo yum update && yum install -y curl
 sudo apt update && sudo apt install -y curl unzip
 
-cd ~ && mkdir .bootstrap && cd .bootstrap
+mkdir ~/.bootstraps && cd ~/.bootstraps
 curl -L https://github.com/knutole/bootstraps/archive/main.zip -o bootstraps.zip
 unzip bootstraps.zip
 cd bootstraps-main/bootstrap-scripts/ubuntu
-for CURR_FILE in $(ls -S1)
+for CURR_FILE in $(ls -I 00* -1v *.ubuntu.*) # ignore 00-boostrap, sort, show only ubuntu 
 do
     echo "Next file: ${CURR_FILE}"
 done
