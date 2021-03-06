@@ -1,12 +1,12 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Create K8 Control Plane and 1-2 Workers
+Description: Create K8 Control Plane and 3 Worker nodes
 Parameters:
   VpcId:
     Type: String
   SubnetId:
     Type: String
-  InstanceName:
+  InstanceNamePrefix:
     Type: String
   ControlInstanceType:
     Description: EC2 instance type
@@ -59,7 +59,6 @@ Mappings:
 
 
 Resources:
-
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -115,20 +114,20 @@ Resources:
       Tags:
         - 
           Key: Name 
-          Value: "k8-control"
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'control-plane'
       UserData:
         Fn::Base64: !Sub 
           - |
             #!/bin/bash -xe
-            sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-            sudo -u ec2-user -- curl ${BootstrapK8ControlPlaneInitializeClusterScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-initialize-k8cluster.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-initialize-k8cluster.sh
-          - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
-            BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
-            BootstrapK8ControlPlaneInitializeClusterScriptUrl: !Ref BootstrapK8ControlPlaneInitializeClusterScriptUrl
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh control
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+          #   BootstrapK8ControlPlaneInitializeClusterScriptUrl: !Ref BootstrapK8ControlPlaneInitializeClusterScriptUrl
 
   K8WorkerInstance1:
     Type: AWS::EC2::Instance
@@ -151,7 +150,10 @@ Resources:
       Tags:
         - 
           Key: Name 
-          Value: "k8-worker-1"
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'worker-1'
       UserData:
         Fn::Base64: !Sub 
           - |
@@ -163,7 +165,6 @@ Resources:
           - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
             BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
       
-            
   K8WorkerInstance2:
     Type: AWS::EC2::Instance
     Properties:
@@ -185,7 +186,10 @@ Resources:
       Tags:
         - 
           Key: Name 
-          Value: "k8-worker-2"
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'worker-2'
       UserData:
         Fn::Base64: !Sub 
           - |
@@ -218,7 +222,10 @@ Resources:
       Tags:
         - 
           Key: Name 
-          Value: "k8-worker-3"
+          Value: !Join
+            - '-'
+            - !Ref InstanceNamePrefix
+            - 'worker-3'
       UserData:
         Fn::Base64: !Sub 
           - |
