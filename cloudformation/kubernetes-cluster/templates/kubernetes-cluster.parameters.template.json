@@ -28,6 +28,10 @@
       "ParameterValue": "k8-ec2-cluster"
     },
     {
+      "ParameterKey": "BootstrapScriptUrl",
+      "ParameterValue": "https://raw.githubusercontent.com/knutole/bootstraps/main/bootstrap-scripts/amazonlinux2/bootstrap.sh"
+    },
+    {
       "ParameterKey": "BootstrapZshScriptUrl",
       "ParameterValue": "https://gist.githubusercontent.com/knutole/43f924a8056a4ea160f826b360a0018d/raw/bootstrap-p10k.sh"
     },

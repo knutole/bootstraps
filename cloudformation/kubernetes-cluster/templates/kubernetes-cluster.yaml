@@ -39,6 +39,8 @@ Parameters:
   LatestAmiId:
     Type:  'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
     Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
+  BootstrapScriptUrl:
+    Type: String
   BootstrapZshScriptUrl:
     Type: String
   BootstrapK8ScriptUrl:
@@ -56,7 +58,6 @@ Mappings:
       '64': ami-1c4a046f
     eu-central-1:
       '64': ami-b03ffedf
-
 
 Resources:
   InstanceProfile:
@@ -158,12 +159,17 @@ Resources:
         Fn::Base64: !Sub 
           - |
             #!/bin/bash -xe
-            sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-          - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
-            BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - |
+          #   #!/bin/bash -xe
+          #   sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
       
   K8WorkerInstance2:
     Type: AWS::EC2::Instance
@@ -194,12 +200,17 @@ Resources:
         Fn::Base64: !Sub 
           - |
             #!/bin/bash -xe
-            sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-          - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
-            BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - |
+          #   #!/bin/bash -xe
+          #   sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
 
   K8WorkerInstance3:
     Type: AWS::EC2::Instance
@@ -230,12 +241,17 @@ Resources:
         Fn::Base64: !Sub 
           - |
             #!/bin/bash -xe
-            sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
-            sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
-          - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
-            BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
+            sudo -u ec2-user -- curl ${BootstrapScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap.sh
+            sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap.sh
+          - BootstrapScriptUrl: !Ref BootstrapScriptUrl
+          # - |
+          #   #!/bin/bash -xe
+          #   sudo -u ec2-user -- curl ${BootstrapZshScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-zsh.sh
+          #   sudo -u ec2-user -- curl ${BootstrapK8ScriptUrl} -H "Cache-Control: no-cache"  -L --output /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          #   sudo -u ec2-user -i -- bash /home/ec2-user/bootstrap-install-k8-amazonlinux2.sh
+          # - BootstrapZshScriptUrl: !Ref BootstrapZshScriptUrl
+          #   BootstrapK8ScriptUrl: !Ref BootstrapK8ScriptUrl
 
   # Associate existing EIP with Control Plane instance
   K8EipControlInstance:
