@@ -47,7 +47,6 @@ kubectl port-forward -n $CILIUM_NAMESPACE svc/hubble-ui --address 0.0.0.0 --addr
 # And then open http://localhost:12000/ to access the UI. (or public IP if ports are open)
 
 
-
 # Install Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 bash get_helm.sh
@@ -75,3 +74,6 @@ helm install my-kubeview kubeview/kubeview --version 0.1.20
 # install kubectl ns + ctx
 kubectl krew install ctx
 kubectl krew install ns
+
+# done
+echo "Done!"
