@@ -9,6 +9,7 @@ echo "***"
 echo "*** ? tested"
 echo "********************************************"
 
+export HOME=/home/ubuntu
 
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
 sudo kubeadm init --pod-network-cidr 10.100.0.0/16
@@ -21,10 +22,6 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 # Test access to cluster:
 kubectl version
 
-# Install the Calico Network Add-On
-# On the Control Plane Node, install Calico Networking:
-# kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
-
 # Install Cilium 
 ## Documentation
 ### https://docs.cilium.io/en/v1.9/gettingstarted/k8s-install-default/
@@ -35,6 +32,7 @@ kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.9.3/install/
 ## Validate Cilium install
 kubectl -n kube-system get pods
 
+# 
 # wait for pod to be ready
 # todo: fill in POD ID
 # while [[ $(kubectl get pods hello-d8d8d7455-j9nzw -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
@@ -62,6 +60,7 @@ kubectl apply -f https://raw.githubusercontent.com/cilium/cilium/1.9.3/install/k
 # Install Helm
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
 bash get_helm.sh
+rm get_helm.sh
 
 # Install Kubeview
 helm repo add kubeview https://benc-uk.github.io/kubeview/charts
