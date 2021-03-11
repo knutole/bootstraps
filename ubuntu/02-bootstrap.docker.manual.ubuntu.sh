@@ -30,14 +30,12 @@ sudo apt-get update
 
 # 19.03
 # install docker
-DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-ce docker-ce-cli 
+DOCKER_VERSION=5:19.03.15~3-0~ubuntu-focal
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-ce=$DOCKER_VERSION docker-ce-cli=$DOCKER_VERSION
 DEBIAN_FRONTEND=noninteractive sudo apt-get install -y containerd.io
 
 # add user to docker group
 sudo usermod -aG docker ubuntu
-
-# verify
-docker version
 
 # use systemd
 sudo mkdir /etc/docker
@@ -56,3 +54,6 @@ EOF
 sudo systemctl enable docker
 sudo systemctl daemon-reload
 sudo systemctl restart docker
+
+# verify
+docker version

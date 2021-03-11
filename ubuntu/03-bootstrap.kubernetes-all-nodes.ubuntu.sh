@@ -18,46 +18,46 @@ sudo apt-get install -y \
     gnupg \
     net-tools 
 
-# Create configuration file for containerd:
-cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
-overlay
-br_netfilter
-EOF
+# # Create configuration file for containerd:
+# cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
+# overlay
+# br_netfilter
+# EOF
 
-# Load modules:
-sudo modprobe overlay
-sudo modprobe br_netfilter
+# # Load modules:
+# sudo modprobe overlay
+# sudo modprobe br_netfilter
 
-# Set system configurations for Kubernetes networking:
-cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
-net.bridge.bridge-nf-call-iptables = 1
-net.ipv4.ip_forward = 1
-net.bridge.bridge-nf-call-ip6tables = 1
-EOF
+# # Set system configurations for Kubernetes networking:
+# cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+# net.bridge.bridge-nf-call-iptables = 1
+# net.ipv4.ip_forward = 1
+# net.bridge.bridge-nf-call-ip6tables = 1
+# EOF
 
 # Apply new settings:
-sudo sysctl --system
+# sudo sysctl --system
 
-# Install containerd:
-sudo apt-get update 
-sudo apt-get install -y device-mapper-persistent-data lvm2 
-sudo apt-get install -y containerd
+# # Install containerd:
+# sudo apt-get update 
+# sudo apt-get install -y device-mapper-persistent-data lvm2 
+# sudo apt-get install -y containerd
 
-# Create default configuration file for containerd:
-sudo mkdir -p /etc/containerd
+# # Create default configuration file for containerd:
+# sudo mkdir -p /etc/containerd
 
-# Generate default containerd configuration and save to the newly created default file:
-sudo containerd config default | sudo tee /etc/containerd/config.toml
+# # Generate default containerd configuration and save to the newly created default file:
+# sudo containerd config default | sudo tee /etc/containerd/config.toml
 
-# Restart containerd to ensure new configuration file usage:
-sudo systemctl restart containerd
-# sudo systemctl enable containerd.service
+# # Restart containerd to ensure new configuration file usage:
+# sudo systemctl restart containerd
+# # sudo systemctl enable containerd.service
 
-# Disable swap:
-sudo swapoff -a
+# # Disable swap:
+# sudo swapoff -a
 
-# Disable swap on startup in /etc/fstab:
-sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+# # Disable swap on startup in /etc/fstab:
+# sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 
 
