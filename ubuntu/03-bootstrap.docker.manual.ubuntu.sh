@@ -6,6 +6,7 @@ echo "*** os: ubuntu"
 echo "*** v. 21.03.11 "
 echo "********************************************"
 
+set -e
 
 # update, get deps
 sudo apt-get update

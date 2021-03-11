@@ -9,6 +9,7 @@ echo "***"
 echo "*** ? tested"
 echo "********************************************"
 
+set -e
 export HOME=/home/ubuntu
 
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
@@ -27,7 +28,7 @@ kubectl version
 ### https://docs.cilium.io/en/v1.9/gettingstarted/k8s-install-default/
 ### https://docs.cilium.io/en/v1.9/concepts/kubernetes/requirements/#k8s-requirements
 ## Get plugin
-kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.9.3/install/kubernetes/quick-install.yaml
+kubectl create -f https://raw.githubusercontent.com/cilium/cilium/1.9.5/install/kubernetes/quick-install.yaml
 
 ## Validate Cilium install
 kubectl -n kube-system get pods
