@@ -28,9 +28,31 @@ echo \
 # update
 sudo apt-get update
 
+# 19.03
 # install docker
-sudo apt-get install -y docker-ce docker-ce-cli 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y containerd.io
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-ce docker-ce-cli 
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y containerd.io
+
+# add user to docker group
+sudo usermod -aG docker ubuntu
 
 # verify
 docker version
+
+# use systemd
+sudo mkdir /etc/docker
+cat <<EOF | sudo tee /etc/docker/daemon.json
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2"
+}
+EOF
+
+# restart
+sudo systemctl enable docker
+sudo systemctl daemon-reload
+sudo systemctl restart docker
