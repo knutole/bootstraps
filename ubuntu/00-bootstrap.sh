@@ -1,22 +1,37 @@
 #!/bin/bash
 
+# this script is run directly from cloudformation template,
+# like so: curl GITHUB | bash
+
 echo 
 echo
-echo "********************************************"
-echo "*** Bootstrap script"
-echo "********************************************"
-echo "*** NODE: $NODE"
-echo "*** HOME: $HOME"
-echo "*** K8_NODE_TYPE: $K8_NODE_TYPE"
-echo "********************************************"
+echo "************************"
+echo "*** Bootstrap script ***"
+echo "************************"
+echo "***   Ubuntu 20.4    ***"
+echo "***   -----------    ***"
+echo "***       Zsh        ***"
+echo "***      Docker      ***"
+echo "***    Kubernetes    ***"
+echo "************************"
+echo "***       v.2        ***"
+echo "************************"
 echo
-
-# self-own
-sudo chown -R ubuntu:ubuntu /home/ubuntu
+echo
 
 # upgrade
 sudo apt-get update
+sudo apt-get install -y unzip
 sudo apt-get upgrade -y
+
+# get bootscripts
+cd /home/ubuntu
+curl -L https://github.com/knutole/bootstraps/archive/main.zip -o bootstraps.zip
+unzip -o bootstraps.zip
+cd bootstraps-main/ubuntu
+
+# self-own
+sudo chown -R ubuntu:ubuntu /home/ubuntu
 
 # run scripts in sorted order
 for CURR_FILE in $(ls -I "00*" -I "*manual*" -1v) # ignore 00-bootstrap, sort 
