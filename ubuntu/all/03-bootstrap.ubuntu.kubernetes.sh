@@ -36,3 +36,6 @@ sudo apt-get install -y kubelet=$K8SVERSION kubeadm=$K8SVERSION kubectl=$K8SVERS
 
 # Turn off automatic updates:
 sudo apt-mark hold kubelet kubeadm kubectl
+
+# add completion to zsh
+kubectl completion zsh > "${fpath[1]}/_kubectl"
