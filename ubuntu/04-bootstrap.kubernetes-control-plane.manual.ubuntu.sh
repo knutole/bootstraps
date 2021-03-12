@@ -36,7 +36,12 @@ kubectl -n kube-system get pods
 # 
 # wait for pod to be ready
 # todo: fill in POD ID
-# while [[ $(kubectl get pods hello-d8d8d7455-j9nzw -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+# while [[ $(kubectl get pods -n kube-system -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod" && sleep 1; done
+
+for POD in $(kubectl get pods -n kube-system -o=name | grep cilium)
+do
+  while [[ $(kubectl get $POD -n kube-system -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for $POD" && sleep 1; done
+done
 
 
 # Create test
