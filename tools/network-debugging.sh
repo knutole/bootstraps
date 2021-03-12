@@ -5,6 +5,8 @@ LOGFILE="network-debug-$RANDOM.log"
 echo "========================================"
 echo "Printing network debug logs to $LOGFILE"
 
+
+
 echo -en "\n\n # ip addr -> \n" >> $LOGFILE
 ip addr >> $LOGFILE
 
@@ -29,6 +31,9 @@ ss -tunlp4  >> $LOGFILE
 echo -en "\n\n # iptables -L -> \n" >> $LOGFILE
 sudo iptables -L >> $LOGFILE
 
+echo "\nGot internet connection?" >> $LOGFILE
+timeout 3 curl ifconfig.co >> $LOGFILE
+echo "-"
 
 echo "Networking information printed to $LOGFILE"
 echo "-------------------------------------------------"
