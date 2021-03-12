@@ -35,7 +35,8 @@ echo "Install Docker version $DOCKER_VERSION"
 DEBIAN_FRONTEND=noninteractive sudo apt-get install -y docker-ce=$DOCKER_VERSION docker-ce-cli=$DOCKER_VERSION
 DEBIAN_FRONTEND=noninteractive sudo apt-get install -y containerd.io
 
-# add user to docker group (need to log out/in to take effect)
+# add user to docker group 
+# (need to log out/in to take effect - or use sudo for rest of script)
 sudo usermod -aG docker ubuntu
 
 # use systemd
@@ -57,4 +58,4 @@ sudo systemctl daemon-reload
 sudo systemctl restart docker
 
 # verify
-docker version
+sudo docker version
