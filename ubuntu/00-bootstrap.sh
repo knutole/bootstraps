@@ -27,7 +27,7 @@ sudo apt-get upgrade -y
 # get bootscripts
 cd /home/ubuntu
 curl -L https://github.com/knutole/bootstraps/archive/main.zip -o bootstraps.zip
-unzip -o bootstraps.zip
+unzip -o bootstraps.zip && rm bootstraps.zip
 cd bootstraps-main/ubuntu
 
 # self-own
@@ -42,3 +42,4 @@ do
 done
 
 echo "*** All done!"
+
