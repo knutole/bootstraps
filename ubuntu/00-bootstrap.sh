@@ -36,17 +36,15 @@ sudo chown -R ubuntu:ubuntu /home/ubuntu
 
 echo "Running ALL scripts..."
 cd /home/ubuntu/bootstraps-main/ubuntu/all
-
 # run scripts in sorted order
 for CURR_FILE in $(ls -I "00*" -I "*manual*" -1v) # ignore 00-bootstrap, sort 
 do
-    echo "*** Dry-running bootstrap script: $CURR_FILE"
-    # bash $CURR_FILE
+    echo "*** Running bootstrap script: $CURR_FILE"
+    bash $CURR_FILE
 done
 
 echo "Running Control Plane scripts..."
 cd /home/ubuntu/bootstraps-main/ubuntu/control-plane
-
 # run scripts in sorted order
 for CURR_FILE in $(ls -I "00*" -I "*manual*" -1v) # ignore 00-bootstrap, sort 
 do

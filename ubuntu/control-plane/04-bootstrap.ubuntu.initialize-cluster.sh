@@ -12,8 +12,15 @@ echo "********************************************"
 set -e
 export HOME=/home/ubuntu
 
+# Disable swap:
+sudo swapoff -a
+
+# Disable swap on startup in /etc/fstab:
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
-CIDR=10.100.0.0/16
+CIDR=10.0.10.0/16 # needs to match AWS subnet apparently
 echo "Initializing cluster @ $CIDR..."
 sudo kubeadm init --pod-network-cidr $CIDR
 

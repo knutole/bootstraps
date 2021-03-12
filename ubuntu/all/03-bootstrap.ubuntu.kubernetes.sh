@@ -19,6 +19,16 @@ sudo apt-get install -y \
     gnupg \
     net-tools 
 
+# Set system configurations for Kubernetes networking:
+cat <<EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
+
+# Apply new settings:
+sudo sysctl --system
+
 # Download and add GPG key:
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 

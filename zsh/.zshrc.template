@@ -118,6 +118,11 @@ source $ZSH/oh-my-zsh.sh
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
+# source kubectl completion
+if command -v kubectl &> /dev/null
+then
+    source <(kubectl completion zsh)
+fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
