@@ -8,7 +8,7 @@ echo "Adding Cilium Helm repo..."
 helm repo add cilium https://helm.cilium.io/
 
 echo "Installing Cilium with Helm..."
-helm install cilium cilium/cilium --version 1.9.5   \
+helm install cilium cilium/cilium --version 1.9.3   \
   --namespace kube-system                           
 
 # wait for pods to be ready
