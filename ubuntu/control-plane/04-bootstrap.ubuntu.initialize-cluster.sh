@@ -20,17 +20,22 @@ sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
 CIDR=10.0.10.0/16 # needs to match AWS subnet apparently
-echo "Initializing cluster @ $CIDR..."
+echo "Initializing cluster..."
 # sudo kubeadm init --pod-network-cidr $CIDR
 sudo kubeadm init # autoconfigure CIDR
 
 # Set kubectl access:
+echo "Configuring .kube config folder..."
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # Test access to cluster:
+echo 
+echo "Kubectl versions:"
 kubectl version
+echo 
+echo "kubectl get nodes:"
 kubectl get nodes
 
 # done

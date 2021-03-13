@@ -9,8 +9,7 @@ helm repo add cilium https://helm.cilium.io/
 
 echo "Installing Cilium with Helm..."
 helm install cilium cilium/cilium --version 1.9.5   \
-  --namespace kube-system                           \
-  --set hostFirewall=false                  
+  --namespace kube-system                           
 
 # wait for pods to be ready
 echo "Waiting for pods to be ready..."

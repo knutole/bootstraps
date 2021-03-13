@@ -40,5 +40,8 @@ curl https://raw.githubusercontent.com/knutole/bootstraps/main/zsh/.p10k.zsh.tem
 # set zsh as default shell
 sudo chsh -s /bin/zsh ubuntu
 
+# self-own
+sudo chown -R ubuntu:ubuntu /home/ubuntu
+
 # activate
 exec zsh
