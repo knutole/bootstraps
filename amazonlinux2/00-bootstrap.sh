@@ -23,10 +23,8 @@ FLAVOR=amazonlinux2
 USER=ec2-user
 HOME=/home/$USER
 
-# upgrade
-sudo apt-get update
-sudo apt-get install -y unzip
-sudo apt-get upgrade -y
+# update
+sudo yum update && sudo yum -y install unzip
 
 # get bootscripts
 cd $HOME
@@ -36,7 +34,6 @@ cd bootstraps-main/$FLAVOR
 
 # self-own
 sudo chown -R $USER:$USER $HOME
-
 
 echo "Running ALL scripts..."
 cd $HOME/bootstraps-main/$FLAVOR/all
@@ -48,7 +45,6 @@ do
     bash $CURR_FILE
 done
 
-
 echo "Running Control Plane scripts..."
 cd $HOME/bootstraps-main/$FLAVOR/control-plane
 
@@ -59,8 +55,4 @@ do
     # bash $CURR_FILE
 done
 
-
-
-
 echo "*** All done!"
-
