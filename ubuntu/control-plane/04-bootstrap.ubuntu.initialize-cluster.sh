@@ -19,10 +19,10 @@ sudo swapoff -a
 sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
 # Initialize the Kubernetes cluster on the control plane node using kubeadm (Note: This is only performed on the Control Plane Node):
-CIDR=10.0.10.0/16 # needs to match AWS subnet apparently
+CIDR=10.0.0.0/16 # needs to match AWS subnet apparently
 echo "Initializing cluster..."
-# sudo kubeadm init --pod-network-cidr $CIDR
-sudo kubeadm init # autoconfigure CIDR
+sudo kubeadm init --pod-network-cidr $CIDR
+# sudo kubeadm init # autoconfigure CIDR
 
 # Set kubectl access:
 echo "Configuring .kube config folder..."
